@@ -42,28 +42,22 @@ AABCharacterBase::AABCharacterBase()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Resources/Sword_and_Shield/Demo/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animation/ABP_ABCharacter.ABP_ABCharacter_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UABCharacterControlData> ShoulderDataRef(TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Shoulder.ABC_Shoulder'"));
+	static ConstructorHelpers::FObjectFinder<UABCharacterControlData> ShoulderDataRef(TEXT("/Script/LieOfS.ABCharacterControlData'/Game/GameData/CharacterControl/ABC_Shoulder.ABC_Shoulder'"));
 	if (ShoulderDataRef.Object)
 	{
 		CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
-	}
-
-	static ConstructorHelpers::FObjectFinder<UABCharacterControlData> QuaterDataRef(TEXT("/Script/ArenaBattle.ABCharacterControlData'/Game/ArenaBattle/CharacterControl/ABC_Quater.ABC_Quater'"));
-	if (QuaterDataRef.Object)
-	{
-		CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'"));
@@ -91,7 +85,7 @@ AABCharacterBase::AABCharacterBase()
 	HpBar = CreateDefaultSubobject<UABWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
 		HpBar->SetWidgetClass(HpBarWidgetRef.Class);

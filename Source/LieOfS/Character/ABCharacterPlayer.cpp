@@ -26,43 +26,43 @@ AABCharacterPlayer::AABCharacterPlayer()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	// Input
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_Jump.IA_Jump'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_Jump.IA_Jump'"));
 	if (nullptr != InputActionJumpRef.Object)
 	{
 		JumpAction = InputActionJumpRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ChangeControl.IA_ChangeControl'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_ChangeControl.IA_ChangeControl'"));
 	if (nullptr != InputChangeActionControlRef.Object)
 	{
 		ChangeControlAction = InputChangeActionControlRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ShoulderMove.IA_ShoulderMove'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_ShoulderMove.IA_ShoulderMove'"));
 	if (nullptr != InputActionShoulderMoveRef.Object)
 	{
 		ShoulderMoveAction = InputActionShoulderMoveRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ShoulderLook.IA_ShoulderLook'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_ShoulderLook.IA_ShoulderLook'"));
 	if (nullptr != InputActionShoulderLookRef.Object)
 	{
 		ShoulderLookAction = InputActionShoulderLookRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionQuaterMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_QuaterMove.IA_QuaterMove'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionQuaterMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_QuaterMove.IA_QuaterMove'"));
 	if (nullptr != InputActionQuaterMoveRef.Object)
 	{
 		QuaterMoveAction = InputActionQuaterMoveRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_Attack.IA_Attack'"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_Attack.IA_Attack'"));
 	if (nullptr != InputActionAttackRef.Object)
 	{
 		AttackAction = InputActionAttackRef.Object;
 	}
 
-	CurrentCharacterControlType = ECharacterControlType::Quater;
+	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 }
 
 void AABCharacterPlayer::BeginPlay()
@@ -129,14 +129,17 @@ void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 	SetCharacterControlData(NewCharacterControl);
 
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController != nullptr)
 	{
-		Subsystem->ClearAllMappings();
-		UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
-		if (NewMappingContext)
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			Subsystem->AddMappingContext(NewMappingContext, 0);
+			Subsystem->ClearAllMappings();
+			UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
+			if (NewMappingContext)
+			{
+				Subsystem->AddMappingContext(NewMappingContext, 0);
+			}
 		}
 	}
 
