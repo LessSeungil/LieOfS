@@ -12,13 +12,16 @@
 #include "LieOfS/CharacterStat/ABCharacterStatComponent.h"
 #include "LieOfS/Interface/ABGameInterface.h"
 #include "GameFramework/GameModeBase.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "LieOfS/Physics/ABCollision.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AABCharacterPlayer::AABCharacterPlayer()
 {
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -42,6 +45,12 @@ AABCharacterPlayer::AABCharacterPlayer()
 	if (nullptr != InputActionAttackRef.Object)
 	{
 		AttackAction = InputActionAttackRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputLockOnActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_LockOn.IA_LockOn'"));
+	if (nullptr != InputLockOnActionRef.Object)
+	{
+		LockOnAction = InputLockOnActionRef.Object;
 	}
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
@@ -69,11 +78,20 @@ void AABCharacterPlayer::SetDead()
 	{
 		DisableInput(PlayerController);
 
+
 		IABGameInterface* ABGameMode = Cast<IABGameInterface>(GetWorld()->GetAuthGameMode());
 		if (ABGameMode)
 		{
 			ABGameMode->OnPlayerDead();
 		}
+	}
+}
+
+void AABCharacterPlayer::Tick(float DeltaTime)
+{
+	if (bLockOn)
+	{
+		LookAtTarget(DeltaTime);
 	}
 }
 
@@ -86,6 +104,8 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderMove);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
+	EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::LockOn);
+	
 }
 
 void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
@@ -150,6 +170,55 @@ void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 void AABCharacterPlayer::Attack()
 {
 	ProcessComboCommand();
+}
+
+void AABCharacterPlayer::LockOn()
+{
+	if (bLockOn)
+	{
+		bLockOn = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		bUseControllerRotationYaw = false;
+	}
+	else
+	{
+		FHitResult  OutHitResult;
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(Lock), false, this);
+
+		const FVector LockOnBox = FVector(600.f, 600.f, 300.f);
+		const FVector CameraForwardVector = FollowCamera->GetForwardVector();
+		const FVector Start = GetActorLocation() + CameraForwardVector * (GetCapsuleComponent()->GetScaledCapsuleRadius() + LockOnBox.X * 0.5f);
+		const FVector End = Start + CameraForwardVector * LockOnBox.X;
+		FVector BoxOrigin = Start + (End - Start) * 0.5f;
+
+		bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, BoxOrigin, End, FQuat::Identity, CCHANNEL_ABACTION, FCollisionShape::MakeBox(LockOnBox), Params);
+		if (HitDetected)
+		{
+			LockOnActor = OutHitResult.GetActor();
+			bLockOn = true;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			bUseControllerRotationYaw = true;
+		}
+	}
+}
+
+void AABCharacterPlayer::LockOff()
+{
+	bLockOn = false;
+}
+
+void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
+{
+	if (LockOnActor != nullptr)
+	{
+		FVector LockEdOnLocation = LockOnActor->GetActorLocation();
+		LockEdOnLocation.Z = 100.f;
+
+		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockEdOnLocation);
+		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, DeltaSeconds, 10.f);
+		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch, InterpRotation.Yaw, GetController()->GetControlRotation().Roll));
+	}
+	
 }
 
 void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)

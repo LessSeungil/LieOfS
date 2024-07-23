@@ -22,7 +22,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
-
+	virtual void Tick(float DeltaTime) override;
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -50,12 +50,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> LockOnAction;
+
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
 
 	ECharacterControlType CurrentCharacterControlType;
 
 	void Attack();
+
+// LockOn Section
+	void LockOn();
+	void LockOff();
+	void LookAtTarget(float DeltaSeconds);
+public:
+	bool GetIsLockOn() { return bLockOn; }
+
+	bool bLockOn;
+
+	AActor* LockOnActor = nullptr;
 
 // UI Section
 protected:
