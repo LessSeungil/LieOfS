@@ -105,7 +105,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
 	EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::LockOn);
-	
+	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::SwitchWeapon);
 }
 
 void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
@@ -143,6 +143,7 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 	CameraBoom->bInheritYaw = CharacterControlData->bInheritYaw;
 	CameraBoom->bInheritRoll = CharacterControlData->bInheritRoll;
 	CameraBoom->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
+	CameraBoom->SocketOffset = CharacterControlData->SocketOffset;
 }
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
@@ -174,20 +175,20 @@ void AABCharacterPlayer::Attack()
 
 void AABCharacterPlayer::LockOn()
 {
+	// 이미 락온 상태였는 지 확인
 	if (bLockOn)
 	{
-		bLockOn = false;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		bUseControllerRotationYaw = false;
+		LockOff();
 	}
 	else
 	{
-		FHitResult  OutHitResult;
-		FCollisionQueryParams Params(SCENE_QUERY_STAT(Lock), false, this);
+		FHitResult OutHitResult;
+		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
 
 		const FVector LockOnBox = FVector(600.f, 600.f, 300.f);
+		// 현재 카메라가 보는 방향으로 박스 생성
 		const FVector CameraForwardVector = FollowCamera->GetForwardVector();
-		const FVector Start = GetActorLocation() + CameraForwardVector * (GetCapsuleComponent()->GetScaledCapsuleRadius() + LockOnBox.X * 0.5f);
+		const FVector Start = GetActorLocation() + CameraForwardVector * (GetCapsuleComponent()->GetScaledCapsuleRadius() + (LockOnBox.X * 0.5f));
 		const FVector End = Start + CameraForwardVector * LockOnBox.X;
 		FVector BoxOrigin = Start + (End - Start) * 0.5f;
 
@@ -197,14 +198,35 @@ void AABCharacterPlayer::LockOn()
 			LockOnActor = OutHitResult.GetActor();
 			bLockOn = true;
 			GetCharacterMovement()->bOrientRotationToMovement = false;
-			bUseControllerRotationYaw = true;
+			bUseControllerRotationYaw = false;
+
+			/*AABCharacterBase* NPCCharacter = Cast<AABCharacterBase>(LockOnActor);
+			if (NPCCharacter)
+			{
+				NPCCharacter->SetVisibleHpBar(true);
+			}*/
 		}
+
+		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+		DrawDebugBox(GetWorld(), BoxOrigin, LockOnBox, DrawColor, false, 2.f);
 	}
 }
 
 void AABCharacterPlayer::LockOff()
 {
+	// 락온 상태 해제
 	bLockOn = false;
+	/*AABCharacterBase* NPCCharacter = Cast<AABCharacterBase>(LockOnActor);
+	if (NPCCharacter)
+	{
+		NPCCharacter->SetVisibleHpBar(false);
+	}*/
+
+	LockOnActor = nullptr;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = true;
 }
 
 void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
@@ -215,10 +237,24 @@ void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
 		LockEdOnLocation.Z = 100.f;
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockEdOnLocation);
-		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, DeltaSeconds, 10.f);
-		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch, InterpRotation.Yaw, GetController()->GetControlRotation().Roll));
+		GetController()->SetControlRotation(FRotator(LookAtRotation.Pitch, LookAtRotation.Yaw, GetController()->GetControlRotation().Roll));
+
+		const FRotator PawnInterpRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator(GetActorRotation().Pitch, GetControlRotation().Yaw, GetActorRotation().Roll), DeltaSeconds, 10.f);
+		GetController()->GetPawn()->SetActorRotation(PawnInterpRotation);
 	}
 	
+}
+
+void AABCharacterPlayer::SwitchWeapon()
+{
+}
+
+void AABCharacterPlayer::LeadWeapon()
+{
+}
+
+void AABCharacterPlayer::UnLeadWeapon()
+{
 }
 
 void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)

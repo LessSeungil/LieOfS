@@ -10,6 +10,6 @@ public class LieOfS : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "NavigationSystem", "AIModule", "GameplayTasks", "AnimGraphRuntime" });
 
-		//PrivateIncluePaths.Add("Intarface", "GameData", "Physics");
+        PrivateIncludePaths.Add("LieOfS");
     }
 }

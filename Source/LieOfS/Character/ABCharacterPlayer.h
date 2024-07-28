@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LockOnAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SwitchWeaponAction;
+
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
 
@@ -60,10 +63,17 @@ protected:
 
 	void Attack();
 
-// LockOn Section
+	// LockOn Section
 	void LockOn();
 	void LockOff();
 	void LookAtTarget(float DeltaSeconds);
+
+	// Equip Section
+	void SwitchWeapon();
+
+	// Ä® ³Ö´Â ¸ð½À
+	void LeadWeapon();
+	void UnLeadWeapon();
 public:
 	bool GetIsLockOn() { return bLockOn; }
 

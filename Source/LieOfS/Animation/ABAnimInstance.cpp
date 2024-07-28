@@ -3,6 +3,7 @@
 
 #include "ABAnimInstance.h"
 #include "GameFramework/Character.h"
+#include "Character/ABCharacterPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UABAnimInstance::UABAnimInstance()
@@ -33,5 +34,16 @@ void UABAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsIdle = GroundSpeed < MovingThreshould;
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
+
+		auto ABCharacterPlayer = Cast<AABCharacterPlayer>(GetOwningActor());
+
+		if (ABCharacterPlayer)
+		{
+			LockOn = ABCharacterPlayer->GetIsLockOn();
+		}
+		else
+		{
+			LockOn = false;
+		}
 	}
 }
