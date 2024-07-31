@@ -8,7 +8,8 @@ public class LieOfS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "NavigationSystem", "AIModule", "GameplayTasks", "AnimGraphRuntime" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "NavigationSystem", 
+			"AIModule", "GameplayTasks", "AnimGraphRuntime", "MovieScene", "LevelSequence" });
 
         PrivateIncludePaths.Add("LieOfS");
     }
