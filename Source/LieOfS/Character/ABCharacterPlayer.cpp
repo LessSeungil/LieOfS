@@ -198,7 +198,6 @@ void AABCharacterPlayer::LockOn()
 			LockOnActor = OutHitResult.GetActor();
 			bLockOn = true;
 			GetCharacterMovement()->bOrientRotationToMovement = false;
-			bUseControllerRotationYaw = false;
 
 			/*AABCharacterBase* NPCCharacter = Cast<AABCharacterBase>(LockOnActor);
 			if (NPCCharacter)
@@ -226,7 +225,6 @@ void AABCharacterPlayer::LockOff()
 	LockOnActor = nullptr;
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	bUseControllerRotationYaw = true;
 }
 
 void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
