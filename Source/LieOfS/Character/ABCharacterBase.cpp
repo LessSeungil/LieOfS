@@ -127,7 +127,7 @@ void AABCharacterBase::ProcessComboCommand()
 {
 	if (CurrentCombo == 0)
 	{
-		ComboActionBegin();
+		//ComboActionBegin();
 		return;
 	}
 

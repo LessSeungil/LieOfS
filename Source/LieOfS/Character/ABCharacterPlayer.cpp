@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "LieOfS/Physics/ABCollision.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "LieOfS/Character/ABCharacterNonPlayer.h"
 
 AABCharacterPlayer::AABCharacterPlayer()
 {
@@ -182,7 +183,7 @@ void AABCharacterPlayer::LockOn()
 	}
 	else
 	{
-		FHitResult OutHitResult;
+		TArray<FHitResult> OutHitResult;
 		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
 
 		const FVector LockOnBox = FVector(600.f, 600.f, 300.f);
@@ -192,13 +193,21 @@ void AABCharacterPlayer::LockOn()
 		const FVector End = Start + CameraForwardVector * LockOnBox.X;
 		FVector BoxOrigin = Start + (End - Start) * 0.5f;
 
-		bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, BoxOrigin, End, FQuat::Identity, CCHANNEL_ABACTION, FCollisionShape::MakeBox(LockOnBox), Params);
+		bool HitDetected = GetWorld()->SweepMultiByChannel(OutHitResult, BoxOrigin, End, FQuat::Identity, CCHANNEL_ABACTION, FCollisionShape::MakeBox(LockOnBox), Params);
 		if (HitDetected)
 		{
-			LockOnActor = OutHitResult.GetActor();
-			bLockOn = true;
-			GetCharacterMovement()->bOrientRotationToMovement = false;
-
+			for (auto& Hit : OutHitResult)
+			{
+				LockOnActor = Hit.GetActor();
+				AABCharacterNonPlayer* Npc = Cast<AABCharacterNonPlayer>(LockOnActor);
+				if (Npc != nullptr)
+				{
+					bLockOn = true;
+					GetCharacterMovement()->bOrientRotationToMovement = false;
+					break;
+				}
+					
+			}
 			/*AABCharacterBase* NPCCharacter = Cast<AABCharacterBase>(LockOnActor);
 			if (NPCCharacter)
 			{
