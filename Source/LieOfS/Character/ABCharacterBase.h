@@ -97,7 +97,10 @@ protected:
 // Item Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class USkeletalMeshComponent> Weapon;
+	TObjectPtr<class UStaticMeshComponent> SwordWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UStaticMeshComponent> ShieldWeapon;
 
 	UPROPERTY()
 	TArray<FTakeItemDelegateWrapper> TakeItemActions;

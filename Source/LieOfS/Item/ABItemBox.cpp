@@ -46,7 +46,7 @@ void AABItemBox::PostInitializeComponents()
 
 	UAssetManager& Manager = UAssetManager::Get();
 
-	TArray<FPrimaryAssetId> Assets;
+	/*TArray<FPrimaryAssetId> Assets;
 	Manager.GetPrimaryAssetIdList(TEXT("ABItemData"), Assets);
 	ensure(0 < Assets.Num());
 
@@ -57,7 +57,7 @@ void AABItemBox::PostInitializeComponents()
 		AssetPtr.LoadSynchronous();
 	}
 	Item = Cast<UABItemData>(AssetPtr.Get());
-	ensure(Item);
+	ensure(Item);*/
 
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AABItemBox::OnOverlapBegin);
 }

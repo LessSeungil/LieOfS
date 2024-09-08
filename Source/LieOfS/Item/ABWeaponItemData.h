@@ -25,8 +25,11 @@ public:
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Weapon)
-	TSoftObjectPtr<USkeletalMesh> WeaponMesh;
+	TSoftObjectPtr<UStaticMesh> WeaponMesh;
 
 	UPROPERTY(EditAnywhere, Category = Stat)
 	FABCharacterStat ModifierStat;
+
+	UPROPERTY(EditAnywhere, Category = Socket)
+	FString SocketName;
 };

@@ -13,6 +13,8 @@
 #include "LieOfS/UI/ABWidgetComponent.h"
 #include "LieOfS/UI/ABHpBarWidget.h"
 #include "LieOfS/Item/ABItems.h"
+#include "Components/StaticMeshComponent.h"
+
 
 DEFINE_LOG_CATEGORY(LogABCharacter);
 
@@ -60,13 +62,13 @@ AABCharacterBase::AABCharacterBase()
 		CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UABComboActionData> ComboActionDataRef(TEXT("/Script/ArenaBattle.ABComboActionData'/Game/ArenaBattle/CharacterAction/ABA_ComboAttack.ABA_ComboAttack'"));
+	static ConstructorHelpers::FObjectFinder<UABComboActionData> ComboActionDataRef(TEXT("/Script/LieOfS.ABComboActionData'/Game/GameData/ABA_ComboAttack.ABA_ComboAttack'"));
 	if (ComboActionDataRef.Object)
 	{
 		ComboActionData = ComboActionDataRef.Object;
@@ -100,8 +102,10 @@ AABCharacterBase::AABCharacterBase()
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::ReadScroll)));
 
 	// Weapon Component
-	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+	SwordWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scabbard"));
+	ShieldWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
+	SwordWeapon->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+	ShieldWeapon->SetupAttachment(GetMesh(), TEXT("Shield"));
 }
 
 void AABCharacterBase::PostInitializeComponents()
@@ -127,7 +131,7 @@ void AABCharacterBase::ProcessComboCommand()
 {
 	if (CurrentCombo == 0)
 	{
-		//ComboActionBegin();
+		ComboActionBegin();
 		return;
 	}
 
@@ -294,7 +298,19 @@ void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
 		{
 			WeaponItemData->WeaponMesh.LoadSynchronous();
 		}
-		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+
+		USkeletalMeshComponent* mesh = GetMesh();
+		
+		if (WeaponItemData->SocketName == TEXT("Weapon_R"))
+		{
+			SwordWeapon->SetStaticMesh(WeaponItemData->WeaponMesh.Get());
+		}
+		else
+		{
+			ShieldWeapon->SetStaticMesh(WeaponItemData->WeaponMesh.Get());
+		}
+
+		
 		Stat->SetModifierStat(WeaponItemData->ModifierStat);
 	}
 }
