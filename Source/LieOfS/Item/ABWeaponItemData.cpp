@@ -5,5 +5,5 @@
 
 UABWeaponItemData::UABWeaponItemData()
 {
-	Type = EItemType::Weapon;
+	
 }
