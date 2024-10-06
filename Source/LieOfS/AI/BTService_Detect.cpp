@@ -56,7 +56,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	{
 		for (auto const& OverlapResult : OverlapResults)
 		{
-			/*APawn* Pawn = Cast<APawn>(OverlapResult.GetActor());
+			APawn* Pawn = Cast<APawn>(OverlapResult.GetActor());
 			if (Pawn && Pawn->GetController()->IsPlayerController())
 			{
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
@@ -65,7 +65,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.27f);
 				return;
-			}*/
+			}
 		}
 	}
 
