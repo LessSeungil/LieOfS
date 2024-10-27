@@ -15,6 +15,11 @@ AABCharacterNonPlayer::AABCharacterNonPlayer()
 void AABCharacterNonPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	if (Stat)
+	{
+		Stat->SetStat(true);
+	}
 }
 
 void AABCharacterNonPlayer::SetDead()

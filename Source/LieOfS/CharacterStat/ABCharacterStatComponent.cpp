@@ -16,16 +16,11 @@ UABCharacterStatComponent::UABCharacterStatComponent()
 void UABCharacterStatComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
-	SetLevelStat(CurrentLevel);
-	SetHp(BaseStat.MaxHp);
 }
 
 void UABCharacterStatComponent::SetLevelStat(int32 InNewLevel)
 {
 	CurrentLevel = FMath::Clamp(InNewLevel, 1, UABGameSingleton::Get().CharacterMaxLevel);
-	SetBaseStat(UABGameSingleton::Get().GetCharacterStat(CurrentLevel));
-	check(BaseStat.MaxHp > 0.0f);
 }
 
 float UABCharacterStatComponent::ApplyDamage(float InDamage)
@@ -40,6 +35,21 @@ float UABCharacterStatComponent::ApplyDamage(float InDamage)
 	}
 
 	return ActualDamage;
+}
+
+void UABCharacterStatComponent::SetStat(bool bAI)
+{
+	if (bAI)
+	{
+		SetBaseStat(UABGameSingleton::Get().GetAICharacterStat(CurrentLevel));
+	}
+	else
+	{
+		SetBaseStat(UABGameSingleton::Get().GetCharacterStat(CurrentLevel));
+	}
+
+	SetLevelStat(CurrentLevel);
+	SetHp(BaseStat.MaxHp);
 }
 
 void UABCharacterStatComponent::SetHp(float NewHp)

@@ -25,6 +25,22 @@ UABGameSingleton::UABGameSingleton()
 
 	CharacterMaxLevel = CharacterStatTable.Num();
 	ensure(CharacterMaxLevel > 0);
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> AIDataTableRef(TEXT("/Script/Engine.DataTable'/Game/GameData/ABAICharacterStatTable.ABAICharacterStatTable'"));
+	if (nullptr != AIDataTableRef.Object)
+	{
+		const UDataTable* DataTable = AIDataTableRef.Object;
+		check(DataTable->GetRowMap().Num() > 0);
+
+		TArray<uint8*> ValueArray;
+		DataTable->GetRowMap().GenerateValueArray(ValueArray);
+		Algo::Transform(ValueArray, AICharacterStatTable,
+			[](uint8* Value)
+			{
+				return *reinterpret_cast<FABCharacterStat*>(Value);
+			}
+		);
+	}
 }
 
 UABGameSingleton& UABGameSingleton::Get()

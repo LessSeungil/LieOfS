@@ -23,6 +23,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostInitializeComponents() override;
+
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

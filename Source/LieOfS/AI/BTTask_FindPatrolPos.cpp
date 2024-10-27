@@ -34,10 +34,12 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 	}
 
+	// 블랙보드에 있는 BBKEY_HOMEPOS를 가져옴
 	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(BBKEY_HOMEPOS);
 	float PatrolRadius = AIPawn->GetAIPatrolRadius();
 	FNavLocation NextPatrolPos;
 
+	// 블랙 보드에 BBKEY_PATROLPOS 데이터에 넣어줌
 	if (NavSystem->GetRandomPointInNavigableRadius(Origin, PatrolRadius, NextPatrolPos))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(BBKEY_PATROLPOS, NextPatrolPos.Location);

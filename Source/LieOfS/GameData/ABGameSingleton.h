@@ -24,11 +24,12 @@ public:
 // Character Stat Data Section
 public:
 	FORCEINLINE FABCharacterStat GetCharacterStat(int32 InLevel) const { return CharacterStatTable.IsValidIndex(InLevel - 1) ? CharacterStatTable[InLevel - 1] : FABCharacterStat(); }
+	FORCEINLINE FABCharacterStat GetAICharacterStat(int32 InLevel) const { return AICharacterStatTable.IsValidIndex(InLevel - 1) ? AICharacterStatTable[InLevel - 1] : FABCharacterStat(); }
 
 	UPROPERTY()
 	int32 CharacterMaxLevel;
 
 private:
 	TArray<FABCharacterStat> CharacterStatTable;
-	
+	TArray<FABCharacterStat> AICharacterStatTable;
 };

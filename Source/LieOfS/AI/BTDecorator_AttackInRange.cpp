@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "LieOfS/Interface/ABCharacterAIInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UBTDecorator_AttackInRange::UBTDecorator_AttackInRange()
 {
@@ -37,5 +38,16 @@ bool UBTDecorator_AttackInRange::CalculateRawConditionValue(UBehaviorTreeCompone
 	float DistanceToTarget = ControllingPawn->GetDistanceTo(Target);
 	float AttackRangeWithRadius = AIPawn->GetAIAttackRange();
 	bResult = (DistanceToTarget <= AttackRangeWithRadius);
+
+	if (bResult == false)
+	{
+		FVector TargetPos = Target->GetTransform().GetLocation();
+		FVector AIPos = ControllingPawn->GetTransform().GetLocation();
+
+		FVector Dir = UKismetMathLibrary::GetDirectionUnitVector(AIPos,TargetPos);
+		FVector CalPos = AIPos + (Dir * 200.f);
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector(BBKEY_FOLLOWPOS, CalPos);
+	}
+
 	return bResult;
 }

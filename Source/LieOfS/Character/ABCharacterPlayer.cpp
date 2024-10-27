@@ -96,6 +96,13 @@ void AABCharacterPlayer::Tick(float DeltaTime)
 	}
 }
 
+void AABCharacterPlayer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	Stat->SetStat(false);
+}
+
 void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
