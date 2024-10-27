@@ -50,6 +50,9 @@ protected:
 	bool LockOn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	bool IsShield;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
 
 };

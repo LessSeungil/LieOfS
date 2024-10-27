@@ -40,10 +40,12 @@ void UABAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if (ABCharacterPlayer)
 		{
 			LockOn = ABCharacterPlayer->GetIsLockOn();
+			IsShield = ABCharacterPlayer->GetIsShield();
 		}
 		else
 		{
 			LockOn = false;
+			IsShield = false;
 		}
 	}
 }
