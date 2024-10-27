@@ -112,7 +112,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
 	EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::LockOn);
-	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::SwitchWeapon);
+	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Ongoing, this, &AABCharacterPlayer::SwitchWeapon);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Canceled, this, &AABCharacterPlayer::ShieldEnd);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Shield);
 }
