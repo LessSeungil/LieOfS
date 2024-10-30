@@ -344,6 +344,7 @@ void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)
 		Stat->OnStatChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateStat);
 		Stat->OnHpChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateHpBar);
 	}
+	
 }
 
 void AABCharacterPlayer::ShieldEndEnableInput(UAnimMontage* TargetMontage, bool IsProperlyEnded)
