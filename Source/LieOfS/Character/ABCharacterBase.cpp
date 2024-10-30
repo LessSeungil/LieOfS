@@ -104,7 +104,7 @@ AABCharacterBase::AABCharacterBase()
 	// Weapon Component
 	SwordWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scabbard"));
 	ShieldWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
-	SwordWeapon->SetupAttachment(GetMesh(), TEXT("Weapon_R"));
+	SwordWeapon->SetupAttachment(GetMesh(), TEXT("Sword"));
 	ShieldWeapon->SetupAttachment(GetMesh(), TEXT("Shield"));
 }
 
@@ -301,12 +301,12 @@ void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
 
 		USkeletalMeshComponent* mesh = GetMesh();
 		
-		if (WeaponItemData->Type == EItemType::Sword)
+		if (WeaponItemData->WeaponType == EWeaponType::Sword)
 		{
 			
 			SwordWeapon->SetStaticMesh(WeaponItemData->WeaponMesh.Get());
 		}
-		else if(WeaponItemData->Type == EItemType::Shield)
+		else if(WeaponItemData->WeaponType == EWeaponType::Shield)
 		{
 			ShieldWeapon->SetStaticMesh(WeaponItemData->WeaponMesh.Get());
 		}

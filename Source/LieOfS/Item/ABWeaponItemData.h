@@ -7,6 +7,13 @@
 #include "../GameData/ABCharacterStat.h"
 #include "ABWeaponItemData.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Sword,
+	Shield,
+};
+
 /**
  * 
  */
@@ -32,4 +39,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Socket)
 	FString SocketName;
+
+	UPROPERTY(EditAnywhere, Category = WeaponType)
+	EWeaponType WeaponType;
+	
 };

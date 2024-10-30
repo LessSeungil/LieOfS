@@ -17,6 +17,7 @@
 #include "LieOfS/Physics/ABCollision.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "LieOfS/Character/ABCharacterNonPlayer.h"
+#include "Particles/ParticleSystemComponent.h"
 
 AABCharacterPlayer::AABCharacterPlayer()
 {
@@ -58,6 +59,22 @@ AABCharacterPlayer::AABCharacterPlayer()
 	if (nullptr != InputShieldActionRef.Object)
 	{
 		ShieldAction = InputShieldActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ShieldMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Shield.AM_Shield'"));
+	if (nullptr != ShieldMontageRef.Object)
+	{
+		ShieldMontage = ShieldMontageRef.Object;
+	}
+
+	ShieldEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect"));
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ShieldEffectRef(TEXT("/Script/Engine.ParticleSystem'/Game/ArenaBattle/Effect/P_ImpactSpark.P_ImpactSpark'"));
+	if (ShieldEffectRef.Object)
+	{
+		ShieldEffect->SetTemplate(ShieldEffectRef.Object);
+		ShieldEffect->bAutoActivate = false;
+		ShieldEffect->SetupAttachment(GetMesh(), TEXT("EffectSocket"));
 	}
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
@@ -122,6 +139,34 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::SwitchWeapon);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Canceled, this, &AABCharacterPlayer::ShieldEnd);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Shield);
+}
+
+float AABCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (bShield)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->StopAllMontages(0.f);
+			AnimInstance->Montage_Play(ShieldMontage, 1.f);
+			DisableInput(Cast<APlayerController>(GetController()));
+
+			if (ShieldEffect)
+				ShieldEffect->Activate();
+
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AABCharacterPlayer::ShieldEndEnableInput);
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, ShieldMontage);
+
+		}
+	}
+	else
+	{
+		Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
+
+	return 0.0f;
 }
 
 void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
@@ -191,7 +236,7 @@ void AABCharacterPlayer::Attack()
 
 void AABCharacterPlayer::LockOn()
 {
-	// ÀÌ¹Ì ¶ô¿Â »óÅÂ¿´´Â Áö È®ÀÎ
+	// ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ ï¿½ï¿½ È®ï¿½ï¿½
 	if (bLockOn)
 	{
 		LockOff();
@@ -202,7 +247,7 @@ void AABCharacterPlayer::LockOn()
 		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
 
 		const FVector LockOnBox = FVector(600.f, 600.f, 300.f);
-		// ÇöÀç Ä«¸Þ¶ó°¡ º¸´Â ¹æÇâÀ¸·Î ¹Ú½º »ý¼º
+		// ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		const FVector CameraForwardVector = FollowCamera->GetForwardVector();
 		const FVector Start = GetActorLocation() + CameraForwardVector * (GetCapsuleComponent()->GetScaledCapsuleRadius() + (LockOnBox.X * 0.5f));
 		const FVector End = Start + CameraForwardVector * LockOnBox.X;
@@ -238,7 +283,7 @@ void AABCharacterPlayer::LockOn()
 
 void AABCharacterPlayer::LockOff()
 {
-	// ¶ô¿Â »óÅÂ ÇØÁ¦
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	bLockOn = false;
 	/*AABCharacterBase* NPCCharacter = Cast<AABCharacterBase>(LockOnActor);
 	if (NPCCharacter)
@@ -299,4 +344,9 @@ void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)
 		Stat->OnStatChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateStat);
 		Stat->OnHpChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateHpBar);
 	}
+}
+
+void AABCharacterPlayer::ShieldEndEnableInput(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+{
+	EnableInput(Cast<APlayerController>(GetController()));
 }

@@ -27,6 +27,7 @@ protected:
 
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 // Character Control Section
 protected:
@@ -60,6 +61,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SwitchWeaponAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> ShieldMontage;
+
+	UPROPERTY(VisibleAnywhere, Category = Effect)
+	TObjectPtr<class UParticleSystemComponent> ShieldEffect;
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
@@ -96,4 +103,7 @@ public:
 // UI Section
 protected:
 	virtual void SetupHUDWidget(class UABHUDWidget* InHUDWidget) override;
+
+private:
+	void ShieldEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 };
