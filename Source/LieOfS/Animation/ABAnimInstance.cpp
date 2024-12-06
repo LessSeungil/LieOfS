@@ -41,11 +41,13 @@ void UABAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			LockOn = ABCharacterPlayer->GetIsLockOn();
 			IsShield = ABCharacterPlayer->GetIsShield();
+			bIsRolling = ABCharacterPlayer->GetIsRolling();
 		}
 		else
 		{
 			LockOn = false;
 			IsShield = false;
+			bIsRolling = false;
 		}
 	}
 }

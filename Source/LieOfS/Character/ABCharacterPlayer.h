@@ -62,8 +62,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SwitchWeaponAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> RollingAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ShieldMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DodgeMontage;
 
 	UPROPERTY(VisibleAnywhere, Category = Effect)
 	TObjectPtr<class UParticleSystemComponent> ShieldEffect;
@@ -86,6 +92,11 @@ protected:
 	void Shield();
 	void ShieldEnd();
 
+	void Rolling();
+	void RollingEnd();
+
+	void PerfectParringEnd();
+
 	// Ä® ³Ö´Â ¸ð½À
 	void LeadWeapon();
 	void UnLeadWeapon();
@@ -95,10 +106,25 @@ public:
 		return bShield;
 	}
 
+	bool GetIsRolling()
+	{
+		return bRolling;
+	}
+
 	bool bLockOn = false;
 	bool bShield = false;
+	bool bRolling = false;
+
+	bool bPerfectParringSetting = false;
+	bool bPerfectParring = false;
 
 	AActor* LockOnActor = nullptr;
+
+	FTimerHandle PerfectParringTimeHandle;
+
+	FTimerHandle GameDelayTimeHandle;
+
+	FTimerHandle RollingTimeHandle;
 
 // UI Section
 protected:
@@ -106,4 +132,7 @@ protected:
 
 private:
 	void ShieldEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+	void DodgeEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+	void GameDelayNormal();
 };

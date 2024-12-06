@@ -67,6 +67,21 @@ AABCharacterPlayer::AABCharacterPlayer()
 		ShieldMontage = ShieldMontageRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DodgeMontageRef(TEXT("/ Script / Engine.AnimMontage'/Game/Animation/AM_Dodge.AM_Dodge'"));
+	if (nullptr != DodgeMontageRef.Object)
+	{
+		DodgeMontage = DodgeMontageRef.Object;
+	}
+
+	
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputRollingActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_Roll.IA_Roll'"));
+	if (nullptr != InputRollingActionRef.Object)
+	{
+		RollingAction = InputRollingActionRef.Object;
+	}
+	
+
 	ShieldEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect"));
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ShieldEffectRef(TEXT("/Script/Engine.ParticleSystem'/Game/ArenaBattle/Effect/P_ImpactSpark.P_ImpactSpark'"));
@@ -139,12 +154,14 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(SwitchWeaponAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::SwitchWeapon);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Canceled, this, &AABCharacterPlayer::ShieldEnd);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Shield);
+	EnhancedInputComponent->BindAction(RollingAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Rolling);
 }
 
 float AABCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (bShield)
 	{
+
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
@@ -159,6 +176,18 @@ float AABCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			EndDelegate.BindUObject(this, &AABCharacterPlayer::ShieldEndEnableInput);
 			AnimInstance->Montage_SetEndDelegate(EndDelegate, ShieldMontage);
 
+		}
+
+		if (bPerfectParring)
+		{
+			GetWorld()->GetWorldSettings()->SetTimeDilation(0.5f);
+			
+			GetWorld()->GetTimerManager().SetTimer(GameDelayTimeHandle, this, &AABCharacterPlayer::GameDelayNormal, 1.f, false);
+
+		}
+		else
+		{
+			Super::TakeDamage(FMath::Max(DamageAmount - 10, 10), DamageEvent, EventInstigator, DamageCauser);
 		}
 	}
 	else
@@ -319,11 +348,52 @@ void AABCharacterPlayer::SwitchWeapon()
 void AABCharacterPlayer::Shield()
 {
 	bShield = true;
+
+	if (bPerfectParringSetting == false)
+	{
+		bPerfectParringSetting = true;
+		// 타이머 설정
+		GetWorld()->GetTimerManager().SetTimer(PerfectParringTimeHandle, this, &AABCharacterPlayer::PerfectParringEnd, 1.5f, false);
+
+		bPerfectParring = true;
+	}
 }
 
 void AABCharacterPlayer::ShieldEnd()
 {
 	bShield = false;
+	bPerfectParringSetting = false;
+}
+
+void AABCharacterPlayer::Rolling()
+{
+	bRolling = true;
+
+	//GetWorld()->GetTimerManager().SetTimer(RollingTimeHandle, this, &AABCharacterPlayer::RollingEnd, 1.f, false);
+
+	/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->Montage_Play(DodgeMontage, 1.f);
+		DisableInput(Cast<APlayerController>(GetController()));
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AABCharacterPlayer::DodgeEndEnableInput);
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, DodgeMontage);
+	}*/
+
+}
+
+void AABCharacterPlayer::RollingEnd()
+{
+	bRolling = false;
+	
+}
+
+void AABCharacterPlayer::PerfectParringEnd()
+{
+	bPerfectParring = false;
 }
 
 void AABCharacterPlayer::LeadWeapon()
@@ -350,4 +420,14 @@ void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)
 void AABCharacterPlayer::ShieldEndEnableInput(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
 	EnableInput(Cast<APlayerController>(GetController()));
+}
+
+void AABCharacterPlayer::DodgeEndEnableInput(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+{
+	EnableInput(Cast<APlayerController>(GetController()));
+}
+
+void AABCharacterPlayer::GameDelayNormal()
+{
+	GetWorld()->GetWorldSettings()->SetTimeDilation(1.f);
 }
