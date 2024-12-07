@@ -17,7 +17,7 @@ class LIEOFS_API UABAnimInstance : public UAnimInstance
 public:
 	UABAnimInstance();
 
-protected:
+public:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -57,5 +57,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	FVector RollingVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	FRotator RollingRotVector;
 
 };

@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "ABCharacterControlData.h"
+#include "Animation/ABAnimInstance.h"
 #include "LieOfS/UI/ABHUDWidget.h"
 #include "LieOfS/CharacterStat/ABCharacterStatComponent.h"
 #include "LieOfS/Interface/ABGameInterface.h"
@@ -72,14 +73,19 @@ AABCharacterPlayer::AABCharacterPlayer()
 	{
 		DodgeMontage = DodgeMontageRef.Object;
 	}
-
-	
 	
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputRollingActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_Roll.IA_Roll'"));
 	if (nullptr != InputRollingActionRef.Object)
 	{
 		RollingAction = InputRollingActionRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UBlendSpace> DodgeBlendSpaceActionRef(TEXT("/Script/Engine.BlendSpace'/Game/Animation/Roll.Roll'"));
+	if (nullptr != DodgeBlendSpaceActionRef.Object)
+	{
+		DodgeBlendSpace = DodgeBlendSpaceActionRef.Object;
+	}
+	
 	
 
 	ShieldEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect"));
@@ -131,6 +137,12 @@ void AABCharacterPlayer::Tick(float DeltaTime)
 	if (bLockOn)
 	{
 		LookAtTarget(DeltaTime);
+	}
+
+	if(bRolling)
+	{
+		//AddMovementInput(RolingDirection, 200.f * GetWorld()->GetDeltaSeconds());
+		LaunchCharacter(RolingDirection * 200.f, true, true);
 	}
 }
 
@@ -246,6 +258,9 @@ void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+	RolingDirection.X = MovementVector.X;
+	RolingDirection.Y = MovementVector.Y;
+	
 	AddMovementInput(ForwardDirection, MovementVector.X);
 	AddMovementInput(RightDirection, MovementVector.Y);
 }
@@ -367,28 +382,52 @@ void AABCharacterPlayer::ShieldEnd()
 
 void AABCharacterPlayer::Rolling()
 {
-	bRolling = true;
-
-	//GetWorld()->GetTimerManager().SetTimer(RollingTimeHandle, this, &AABCharacterPlayer::RollingEnd, 1.f, false);
-
-	/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance)
+	if(DodgeBlendSpace)
 	{
-		AnimInstance->StopAllMontages(0.f);
-		AnimInstance->Montage_Play(DodgeMontage, 1.f);
-		DisableInput(Cast<APlayerController>(GetController()));
+		UABAnimInstance* AnimInstance = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
+		if(AnimInstance)
+		{
+			AnimInstance->bIsRolling = true;
+			AnimInstance->RollingVector = FVector(GetVelocity().X,GetVelocity().Y,0.f);
+			AnimInstance->RollingRotVector = GetActorRotation();
 
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &AABCharacterPlayer::DodgeEndEnableInput);
-		AnimInstance->Montage_SetEndDelegate(EndDelegate, DodgeMontage);
-	}*/
+			bRolling = true;
+			
+ 			//RolingDirection = GetActorRotation().Vector();
 
+			DisableInput(Cast<APlayerController>(GetController()));
+			
+			float AnimTime = DodgeBlendSpace->AnimLength;
+			AnimTime-=0.1f;
+			GetWorld()->GetTimerManager().SetTimer(RollingTimeHandle, this, &AABCharacterPlayer::RollingEnd, AnimTime, false);
+		}
+	}
+	
+
+	// UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	// if (AnimInstance)
+	// {
+	// 	AnimInstance->StopAllMontages(0.f);
+	// 	AnimInstance->Montage_Play(DodgeMontage, 1.f);
+	// 	DisableInput(Cast<APlayerController>(GetController()));
+	//
+	// 	FOnMontageEnded EndDelegate;
+	// 	EndDelegate.BindUObject(this, &AABCharacterPlayer::DodgeEndEnableInput);
+	// 	AnimInstance->Montage_SetEndDelegate(EndDelegate, DodgeMontage);
+	// }
 }
 
 void AABCharacterPlayer::RollingEnd()
 {
+	UABAnimInstance* AnimInstance = Cast<UABAnimInstance>(GetMesh()->GetAnimInstance());
+	if(AnimInstance)
+	{
+		AnimInstance->bIsRolling = false;
+	}
+
 	bRolling = false;
-	
+
+	EnableInput(Cast<APlayerController>(GetController()));
 }
 
 void AABCharacterPlayer::PerfectParringEnd()
@@ -422,10 +461,6 @@ void AABCharacterPlayer::ShieldEndEnableInput(UAnimMontage* TargetMontage, bool 
 	EnableInput(Cast<APlayerController>(GetController()));
 }
 
-void AABCharacterPlayer::DodgeEndEnableInput(UAnimMontage* TargetMontage, bool IsProperlyEnded)
-{
-	EnableInput(Cast<APlayerController>(GetController()));
-}
 
 void AABCharacterPlayer::GameDelayNormal()
 {

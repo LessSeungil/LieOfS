@@ -65,6 +65,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> RollingAction;
 
+// Anim Section
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ShieldMontage;
 
@@ -73,6 +75,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Effect)
 	TObjectPtr<class UParticleSystemComponent> ShieldEffect;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UBlendSpace> DodgeBlendSpace;
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
@@ -92,12 +97,13 @@ protected:
 	void Shield();
 	void ShieldEnd();
 
+public:
 	void Rolling();
 	void RollingEnd();
 
 	void PerfectParringEnd();
 
-	// Ä® ³Ö´Â ¸ð½À
+	// Ä® ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½
 	void LeadWeapon();
 	void UnLeadWeapon();
 public:
@@ -106,14 +112,11 @@ public:
 		return bShield;
 	}
 
-	bool GetIsRolling()
-	{
-		return bRolling;
-	}
-
 	bool bLockOn = false;
 	bool bShield = false;
+
 	bool bRolling = false;
+	FVector RolingDirection;
 
 	bool bPerfectParringSetting = false;
 	bool bPerfectParring = false;
@@ -132,7 +135,6 @@ protected:
 
 private:
 	void ShieldEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
-	void DodgeEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 	void GameDelayNormal();
 };
