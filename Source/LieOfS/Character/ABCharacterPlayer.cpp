@@ -20,6 +20,8 @@
 #include "LieOfS/Character/ABCharacterNonPlayer.h"
 #include "Particles/ParticleSystemComponent.h"
 
+DEFINE_LOG_CATEGORY(MyLogCategory);
+
 AABCharacterPlayer::AABCharacterPlayer()
 {
 	// Camera
@@ -141,8 +143,11 @@ void AABCharacterPlayer::Tick(float DeltaTime)
 
 	if(bRolling)
 	{
-		//AddMovementInput(RolingDirection, 200.f * GetWorld()->GetDeltaSeconds());
-		LaunchCharacter(RolingDirection * 200.f, true, true);
+		//AddMovementInput(RolingFowardDirection, 20.f * MovementVector.X);
+		//AddMovementInput(RolingRightDirection, 20.f * MovementVector.Y);
+
+		//GetCharacterMovement()->AddImpulse(FVector(MovementVector.X,MovementVector.Y,0.f) * 1000.f, true);
+		LaunchCharacter(FVector(MovementVector.X,MovementVector.Y,0.f) * 10.f, false, false);
 	}
 }
 
@@ -250,7 +255,12 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	if(bRolling)
+	{
+		return;
+	}
+	
+	MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -258,11 +268,11 @@ void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	RolingDirection.X = MovementVector.X;
-	RolingDirection.Y = MovementVector.Y;
+	RolingFowardDirection = ForwardDirection;
+	RolingRightDirection = RightDirection;
 	
-	AddMovementInput(ForwardDirection, MovementVector.X);
-	AddMovementInput(RightDirection, MovementVector.Y);
+	AddMovementInput(ForwardDirection, 200.f *MovementVector.X);
+	AddMovementInput(RightDirection, 200.f *MovementVector.Y);
 }
 
 void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
@@ -280,7 +290,6 @@ void AABCharacterPlayer::Attack()
 
 void AABCharacterPlayer::LockOn()
 {
-	// �̹� ���� ���¿��� �� Ȯ��
 	if (bLockOn)
 	{
 		LockOff();
@@ -291,7 +300,7 @@ void AABCharacterPlayer::LockOn()
 		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
 
 		const FVector LockOnBox = FVector(600.f, 600.f, 300.f);
-		// ���� ī�޶� ���� �������� �ڽ� ����
+		
 		const FVector CameraForwardVector = FollowCamera->GetForwardVector();
 		const FVector Start = GetActorLocation() + CameraForwardVector * (GetCapsuleComponent()->GetScaledCapsuleRadius() + (LockOnBox.X * 0.5f));
 		const FVector End = Start + CameraForwardVector * LockOnBox.X;
@@ -349,7 +358,7 @@ void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockEdOnLocation);
 		GetController()->SetControlRotation(FRotator(LookAtRotation.Pitch, LookAtRotation.Yaw, GetController()->GetControlRotation().Roll));
-
+		
 		const FRotator PawnInterpRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator(GetActorRotation().Pitch, GetControlRotation().Yaw, GetActorRotation().Roll), DeltaSeconds, 10.f);
 		GetController()->GetPawn()->SetActorRotation(PawnInterpRotation);
 	}
@@ -393,8 +402,6 @@ void AABCharacterPlayer::Rolling()
 
 			bRolling = true;
 			
- 			//RolingDirection = GetActorRotation().Vector();
-
 			DisableInput(Cast<APlayerController>(GetController()));
 			
 			float AnimTime = DodgeBlendSpace->AnimLength;

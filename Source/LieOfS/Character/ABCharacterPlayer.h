@@ -8,6 +8,8 @@
 #include "LieOfS/Interface/ABCharacterHUDInterface.h"
 #include "ABCharacterPlayer.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(MyLogCategory, Log, All);
+
 /**
  * 
  */
@@ -116,7 +118,10 @@ public:
 	bool bShield = false;
 
 	bool bRolling = false;
-	FVector RolingDirection;
+	FVector RolingFowardDirection;
+	FVector RolingRightDirection;
+
+	FVector2D MovementVector;
 
 	bool bPerfectParringSetting = false;
 	bool bPerfectParring = false;
