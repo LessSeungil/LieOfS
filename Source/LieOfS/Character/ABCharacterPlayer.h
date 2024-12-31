@@ -67,6 +67,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> RollingAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> DodgeAction;
+	
+
 // Anim Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = "true"))
@@ -102,6 +106,9 @@ protected:
 public:
 	void Rolling();
 	void RollingEnd();
+
+	void Dodge();
+	void DodgeEnd();
 
 	void PerfectParringEnd();
 

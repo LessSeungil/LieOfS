@@ -82,6 +82,12 @@ AABCharacterPlayer::AABCharacterPlayer()
 		RollingAction = InputRollingActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputDodgeActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_Dodge.IA_Dodge'"));
+	if (nullptr != InputDodgeActionRef.Object)
+	{
+		DodgeAction = InputDodgeActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UBlendSpace> DodgeBlendSpaceActionRef(TEXT("/Script/Engine.BlendSpace'/Game/Animation/Roll.Roll'"));
 	if (nullptr != DodgeBlendSpaceActionRef.Object)
 	{
@@ -143,11 +149,11 @@ void AABCharacterPlayer::Tick(float DeltaTime)
 
 	if(bRolling)
 	{
-		//AddMovementInput(RolingFowardDirection, 20.f * MovementVector.X);
-		//AddMovementInput(RolingRightDirection, 20.f * MovementVector.Y);
+		AddMovementInput(RolingFowardDirection, 300.f * MovementVector.X);
+		AddMovementInput(RolingRightDirection, 300.f * MovementVector.Y);
 
-		//GetCharacterMovement()->AddImpulse(FVector(MovementVector.X,MovementVector.Y,0.f) * 1000.f, true);
-		LaunchCharacter(FVector(MovementVector.X,MovementVector.Y,0.f) * 10.f, false, false);
+		//GetCharacterMovement()->AddImpulse(FVector(MovementVector.X,MovementVector.Y,0.f) * 200.f, true);
+		//LaunchCharacter(FVector(MovementVector.X,MovementVector.Y,0.f) * 10.f, false, false);
 	}
 }
 
@@ -172,6 +178,8 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Canceled, this, &AABCharacterPlayer::ShieldEnd);
 	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Shield);
 	EnhancedInputComponent->BindAction(RollingAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Rolling);
+	EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Dodge);
+	
 }
 
 float AABCharacterPlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -435,6 +443,14 @@ void AABCharacterPlayer::RollingEnd()
 	bRolling = false;
 
 	EnableInput(Cast<APlayerController>(GetController()));
+}
+
+void AABCharacterPlayer::Dodge()
+{
+}
+
+void AABCharacterPlayer::DodgeEnd()
+{
 }
 
 void AABCharacterPlayer::PerfectParringEnd()
