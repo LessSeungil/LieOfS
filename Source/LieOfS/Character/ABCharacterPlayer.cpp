@@ -120,6 +120,13 @@ void AABCharacterPlayer::BeginPlay()
 	}
 
 	SetCharacterControl(CurrentCharacterControlType);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (DodgeMontage && AnimInstance)
+	{
+		AnimInstance->OnMontageEnded.AddDynamic(this, &AABCharacterPlayer::DodgeEnd);
+	}
+
 }
 
 void AABCharacterPlayer::SetDead()
@@ -263,7 +270,7 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
-	if(bRolling)
+	if(bRolling || bDodge)
 	{
 		return;
 	}
@@ -359,6 +366,9 @@ void AABCharacterPlayer::LockOff()
 
 void AABCharacterPlayer::LookAtTarget(float DeltaSeconds)
 {
+	if (bDodge)
+		return;
+
 	if (LockOnActor != nullptr)
 	{
 		FVector LockEdOnLocation = LockOnActor->GetActorLocation();
@@ -447,10 +457,48 @@ void AABCharacterPlayer::RollingEnd()
 
 void AABCharacterPlayer::Dodge()
 {
+	bDodge = true;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		//방향에 따라 섹션 이름 설정
+		float AngleDeg = FMath::RadiansToDegrees(FMath::Atan2(MovementVector.X, MovementVector.Y));
+		UE_LOG(LogTemp, Warning, TEXT("AngleDeg: %f"), AngleDeg);
+		// 0 ~ 360
+		AngleDeg = FMath::Fmod(AngleDeg + 360.0f, 360.0f);
+		UE_LOG(LogTemp, Warning, TEXT("AngleDeg: %f"), AngleDeg);
+		// 45° 단위로 8방향을 판별 > RoundToInt 로 인해서 % 에 대한 구분짓기가 가능해짐
+		int32 DirectionIndex = FMath::RoundToInt(AngleDeg / 45.0f) % 8;
+		
+		
+
+		const TArray<FString> Directions = {
+		"Right",
+		"FRight",
+		"Forward",
+		"FLeft",
+		"Left",
+		"BLeft",
+		"Back",
+		"BRight"
+		};
+
+		if (AnimInstance->Montage_IsPlaying(DodgeMontage))
+		{
+			AnimInstance->Montage_JumpToSection(FName(*Directions[DirectionIndex]), DodgeMontage);
+		}
+		else
+		{
+			AnimInstance->Montage_Play(DodgeMontage);
+			AnimInstance->Montage_JumpToSection(FName(*Directions[DirectionIndex]), DodgeMontage);
+		}
+	}
 }
 
-void AABCharacterPlayer::DodgeEnd()
+void AABCharacterPlayer::DodgeEnd(UAnimMontage* Montage, bool bInterrupted)
 {
+	bDodge = false;
 }
 
 void AABCharacterPlayer::PerfectParringEnd()

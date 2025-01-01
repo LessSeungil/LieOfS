@@ -108,7 +108,8 @@ public:
 	void RollingEnd();
 
 	void Dodge();
-	void DodgeEnd();
+	UFUNCTION()
+	void DodgeEnd(UAnimMontage* Montage, bool bInterrupted);
 
 	void PerfectParringEnd();
 
@@ -129,6 +130,8 @@ public:
 	FVector RolingRightDirection;
 
 	FVector2D MovementVector;
+
+	bool bDodge = false;
 
 	bool bPerfectParringSetting = false;
 	bool bPerfectParring = false;
