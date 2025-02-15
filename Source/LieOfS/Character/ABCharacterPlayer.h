@@ -6,6 +6,8 @@
 #include "ABCharacterBase.h"
 #include "InputActionValue.h"
 #include "LieOfS/Interface/ABCharacterHUDInterface.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
 #include "ABCharacterPlayer.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MyLogCategory, Log, All);
@@ -14,7 +16,7 @@ DECLARE_LOG_CATEGORY_EXTERN(MyLogCategory, Log, All);
  * 
  */
 UCLASS()
-class LIEOFS_API AABCharacterPlayer : public AABCharacterBase, public IABCharacterHUDInterface
+class LIEOFS_API AABCharacterPlayer : public AABCharacterBase, public IABCharacterHUDInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -36,6 +38,10 @@ protected:
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 	virtual void SetCharacterControlData(const class UABCharacterControlData* CharacterControlData) override;
 
+protected:
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void PossessedBy(AController* NewController) override;
+	
 // Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -152,4 +158,15 @@ private:
 	void ShieldEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 	void GameDelayNormal();
+
+// GAS Section
+protected:
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TObjectPtr<class UAbilitySystemComponent> ASC;
+
+	UPROPERTY()
+	TObjectPtr<class UABCharacterAttributeSet> AttributeSet;
+
+	UFUNCTION()
+	virtual void OnOutOfHealth();
 };

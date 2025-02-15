@@ -19,6 +19,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "LieOfS/Character/ABCharacterNonPlayer.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "AT/ABCharacterAttributeSet.h"
 
 DEFINE_LOG_CATEGORY(MyLogCategory);
 
@@ -107,6 +108,8 @@ AABCharacterPlayer::AABCharacterPlayer()
 	}
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
+
+	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 }
 
 void AABCharacterPlayer::BeginPlay()
@@ -266,6 +269,25 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 	CameraBoom->bInheritRoll = CharacterControlData->bInheritRoll;
 	CameraBoom->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
 	CameraBoom->SocketOffset = CharacterControlData->SocketOffset;
+}
+
+UAbilitySystemComponent* AABCharacterPlayer::GetAbilitySystemComponent() const
+{
+	return nullptr;
+}
+
+void AABCharacterPlayer::PossessedBy(AController* NewController)
+{
+	ASC->InitAbilityActorInfo(this, this);
+	AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
+
+	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
+	/*FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, Level, EffectContextHandle);
+	if (EffectSpecHandle.IsValid())
+	{
+		ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+	}*/
 }
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
@@ -536,4 +558,9 @@ void AABCharacterPlayer::ShieldEndEnableInput(UAnimMontage* TargetMontage, bool 
 void AABCharacterPlayer::GameDelayNormal()
 {
 	GetWorld()->GetWorldSettings()->SetTimeDilation(1.f);
+}
+
+void AABCharacterPlayer::OnOutOfHealth()
+{
+	SetDead();
 }
