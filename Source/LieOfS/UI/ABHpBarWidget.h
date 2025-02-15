@@ -5,19 +5,23 @@
 #include "CoreMinimal.h"
 #include "ABUserWidget.h"
 #include "LieOfS/GameData/ABCharacterStat.h"
+#include "AbilitySystemInterface.h"
+#include "GameplayEffectTypes.h"
 #include "ABHpBarWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LIEOFS_API UABHpBarWidget : public UABUserWidget
+class LIEOFS_API UABHpBarWidget : public UABUserWidget, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:
 	UABHpBarWidget(const FObjectInitializer& ObjectInitializer);
+	
 
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -25,7 +29,14 @@ public:
 	void UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat);
 	void UpdateHpBar(float NewCurrentHp);
 	FString GetHpStatText();
-
+	void SetAbilitySystemComponent(AActor* InOwner);
+	//Gas Section
+protected:
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
+	virtual void OnHealthChanged(const FOnAttributeChangeData& ChangeData);
+	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<class UProgressBar> HpProgressBar;
@@ -38,4 +49,8 @@ protected:
 
 	UPROPERTY()
 	float MaxHp;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TObjectPtr<class UAbilitySystemComponent> ASC;
 };

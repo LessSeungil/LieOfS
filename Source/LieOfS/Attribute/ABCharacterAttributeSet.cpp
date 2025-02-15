@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AT/ABCharacterAttributeSet.h"
+#include "Attribute/ABCharacterAttributeSet.h"
 #include "GameplayEffectExtension.h"
 
 UABCharacterAttributeSet::UABCharacterAttributeSet() :

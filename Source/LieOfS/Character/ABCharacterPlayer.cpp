@@ -19,7 +19,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "LieOfS/Character/ABCharacterNonPlayer.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "AT/ABCharacterAttributeSet.h"
+#include "Attribute/ABCharacterAttributeSet.h"
+#include "GA/ABGA_Damaged.h"
+#include "Player/ABPlayerState.h"
 
 DEFINE_LOG_CATEGORY(MyLogCategory);
 
@@ -278,11 +280,35 @@ UAbilitySystemComponent* AABCharacterPlayer::GetAbilitySystemComponent() const
 
 void AABCharacterPlayer::PossessedBy(AController* NewController)
 {
+	// AABPlayerState* playerState = GetPlayerState<AABPlayerState>();
+	// if(playerState != nullptr)
+	// {
+	// 	ASC = playerState->GetAbilitySystemComponent();
+	// 	ASC->InitAbilityActorInfo(playerState, this);
+	//
+	// 	for(const auto& StartAbility : StartAbilities)
+	// 	{
+	// 		FGameplayAbilitySpec StartSpec(StartAbility);
+	// 		ASC->GiveAbility(StartSpec);
+	// 	}
+	// }
+	
 	ASC->InitAbilityActorInfo(this, this);
-	AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
+	// for(const auto& StartAbility : StartAbilities)
+	// {
+	// 	FGameplayAbilitySpec StartSpec(StartAbility);
+	// 	ASC->GiveAbility(StartSpec);
+	// }
 
-	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-	EffectContextHandle.AddSourceObject(this);
+	FGameplayAbilitySpec StartSpec(UABGA_Damaged::StaticClass());
+	ASC->GiveAbility(StartSpec);
+
+	
+	
+	// AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
+	//
+	// FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	// EffectContextHandle.AddSourceObject(this);
 	/*FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, Level, EffectContextHandle);
 	if (EffectSpecHandle.IsValid())
 	{
@@ -447,6 +473,13 @@ void AABCharacterPlayer::Rolling()
 			float AnimTime = DodgeBlendSpace->AnimLength;
 			AnimTime-=0.1f;
 			GetWorld()->GetTimerManager().SetTimer(RollingTimeHandle, this, &AABCharacterPlayer::RollingEnd, AnimTime, false);
+
+			if(ASC != nullptr)
+			{
+				FGameplayAbilitySpec* DamagedGASpec = ASC->FindAbilitySpecFromClass(UABGA_Damaged::StaticClass());
+				ASC->TryActivateAbility(DamagedGASpec->Handle);	
+			}
+			
 		}
 	}
 	
@@ -541,10 +574,9 @@ void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)
 	if (InHUDWidget)
 	{
 		InHUDWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
-		InHUDWidget->UpdateHpBar(Stat->GetCurrentHp());
+		InHUDWidget->UpdateHpBar(this);
 
 		Stat->OnStatChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateStat);
-		Stat->OnHpChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateHpBar);
 	}
 	
 }

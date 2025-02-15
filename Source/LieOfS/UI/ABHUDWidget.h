@@ -20,7 +20,7 @@ public:
 
 public:
 	void UpdateStat(const FABCharacterStat& BaseStat, const FABCharacterStat& ModifierStat);
-	void UpdateHpBar(float NewCurrentHp);
+	void UpdateHpBar(AActor* Owner);
 
 protected:
 	virtual void NativeConstruct() override;

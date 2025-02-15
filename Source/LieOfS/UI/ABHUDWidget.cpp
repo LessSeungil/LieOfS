@@ -17,9 +17,9 @@ void UABHUDWidget::UpdateStat(const FABCharacterStat& BaseStat, const FABCharact
 	//CharacterStat->UpdateStat(BaseStat, ModifierStat);
 }
 
-void UABHUDWidget::UpdateHpBar(float NewCurrentHp)
+void UABHUDWidget::UpdateHpBar(AActor* Owner)
 {
-	HpBar->UpdateHpBar(NewCurrentHp);
+	HpBar->SetAbilitySystemComponent(Owner);
 }
 
 void UABHUDWidget::NativeConstruct()

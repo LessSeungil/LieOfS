@@ -2,7 +2,7 @@
 
 
 #include "GE/ABGE_Damage.h"
-#include "AT/ABCharacterAttributeSet.h"
+#include "Attribute/ABCharacterAttributeSet.h"
 
 UABGE_Damage::UABGE_Damage()
 {

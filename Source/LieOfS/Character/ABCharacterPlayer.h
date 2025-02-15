@@ -169,4 +169,7 @@ protected:
 
 	UFUNCTION()
 	virtual void OnOutOfHealth();
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
 };
