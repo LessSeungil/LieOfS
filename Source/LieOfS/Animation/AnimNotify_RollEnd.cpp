@@ -2,7 +2,7 @@
 
 
 #include "Animation/AnimNotify_RollEnd.h"
-
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Character/ABCharacterPlayer.h"
 
 void UAnimNotify_RollEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -17,5 +17,8 @@ void UAnimNotify_RollEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 		{
 			AttackPawn->RollingEnd();
 		}
+
+		FGameplayEventData PayloadData;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(AttackPawn, TriggerGameplayTag, PayloadData);
 	}
 }

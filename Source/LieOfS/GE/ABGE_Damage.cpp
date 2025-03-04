@@ -18,3 +18,10 @@ UABGE_Damage::UABGE_Damage()
 	HealthModifier.ModifierMagnitude = ModMagnitude;
 	Modifiers.Add(HealthModifier);
 }
+
+void UABGE_Damage::OnExecuted(FActiveGameplayEffectsContainer& ActiveGEContainer, FGameplayEffectSpec& GESpec, FPredictionKey& PredictionKey) const
+{
+	Super::OnExecuted(ActiveGEContainer, GESpec, PredictionKey);
+
+	int a = 0;
+}

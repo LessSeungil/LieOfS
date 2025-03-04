@@ -15,7 +15,7 @@ void UABGA_Damaged::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamagedEffect);
 	if(EffectSpecHandle.IsValid())
 	{
-		//ApplyGameplayEffectSpecToTarget(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,EffectSpecHandle,targetData)
+		ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle);
 	}
 		
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false,false);

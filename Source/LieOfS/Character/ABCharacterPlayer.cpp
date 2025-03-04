@@ -22,6 +22,7 @@
 #include "Attribute/ABCharacterAttributeSet.h"
 #include "GA/ABGA_Damaged.h"
 #include "Player/ABPlayerState.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 DEFINE_LOG_CATEGORY(MyLogCategory);
 
@@ -275,7 +276,7 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 
 UAbilitySystemComponent* AABCharacterPlayer::GetAbilitySystemComponent() const
 {
-	return nullptr;
+	return ASC;
 }
 
 void AABCharacterPlayer::PossessedBy(AController* NewController)
@@ -294,16 +295,11 @@ void AABCharacterPlayer::PossessedBy(AController* NewController)
 	// }
 	
 	ASC->InitAbilityActorInfo(this, this);
-	// for(const auto& StartAbility : StartAbilities)
-	// {
-	// 	FGameplayAbilitySpec StartSpec(StartAbility);
-	// 	ASC->GiveAbility(StartSpec);
-	// }
-
-	FGameplayAbilitySpec StartSpec(UABGA_Damaged::StaticClass());
-	ASC->GiveAbility(StartSpec);
-
-	
+	 for(const auto& StartAbility : StartAbilities)
+	 {
+	 	FGameplayAbilitySpec StartSpec(StartAbility);
+	 	ASC->GiveAbility(StartSpec);
+	 }
 	
 	// AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
 	//
@@ -476,8 +472,25 @@ void AABCharacterPlayer::Rolling()
 
 			if(ASC != nullptr)
 			{
-				FGameplayAbilitySpec* DamagedGASpec = ASC->FindAbilitySpecFromClass(UABGA_Damaged::StaticClass());
-				ASC->TryActivateAbility(DamagedGASpec->Handle);	
+				/*FGameplayAbilitySpec* DamagedGASpec = ASC->FindAbilitySpecFromClass(UABGA_Damaged::StaticClass());
+				if (DamagedGASpec)
+				{
+					ASC->TryActivateAbility(DamagedGASpec->Handle);	
+				}
+
+				FGameplayTagContainer TargetTag(FGameplayTag::RequestGameplayTag(FName("Character.State.Damaged")));
+				ASC->TryActivateAbilitiesByTag(TargetTag);*/
+
+				//FGameplayEventData PayloadData;
+				//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag(FName("Character.State.Damaged")), PayloadData);
+
+				FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+				EffectContext.AddSourceObject(this);
+				FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(GameplayEffectClass, 1, EffectContext);
+				if (EffectSpecHandle.IsValid())
+				{
+					ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+				}
 			}
 			
 		}

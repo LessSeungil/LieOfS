@@ -16,4 +16,6 @@ class LIEOFS_API UABGE_Damage : public UGameplayEffect
 	
 public:
 	UABGE_Damage();
+
+	void OnExecuted(FActiveGameplayEffectsContainer& ActiveGEContainer, FGameplayEffectSpec& GESpec, FPredictionKey& PredictionKey) const;
 };

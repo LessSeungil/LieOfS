@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "GameplayTagContainer.h"
 #include "AnimNotify_RollEnd.generated.h"
 
 /**
@@ -16,4 +17,7 @@ class LIEOFS_API UAnimNotify_RollEnd : public UAnimNotify
 
 protected:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+	UPROPERTY(EditAnywhere, Meta = (Categories = Event))
+	FGameplayTag TriggerGameplayTag;
 };
