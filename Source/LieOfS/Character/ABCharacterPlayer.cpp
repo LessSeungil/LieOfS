@@ -113,6 +113,8 @@ AABCharacterPlayer::AABCharacterPlayer()
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
+	AttributeSet = CreateDefaultSubobject<UABCharacterAttributeSet>(TEXT("HealthSet"));
 }
 
 void AABCharacterPlayer::BeginPlay()
