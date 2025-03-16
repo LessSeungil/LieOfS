@@ -23,12 +23,6 @@ void UABHpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
-	ensure(HpProgressBar);
-
-	HpStat = Cast<UTextBlock>(GetWidgetFromName(TEXT("TxtHpStat")));
-	ensure(HpStat);
-
 	IABCharacterWidgetInterface* CharacterWidget = Cast<IABCharacterWidgetInterface>(OwningActor);
 	if (CharacterWidget)
 	{

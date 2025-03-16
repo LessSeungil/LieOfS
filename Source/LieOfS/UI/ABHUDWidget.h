@@ -23,12 +23,6 @@ public:
 	void UpdateHpBar(AActor* Owner);
 
 protected:
-	virtual void NativeConstruct() override;
-
-protected:
-	UPROPERTY()
-	TObjectPtr<class UABHpBarWidget> HpBar;
-
-	UPROPERTY()
-	TObjectPtr<class UABCharacterStatWidget> CharacterStat;
+	UPROPERTY(meta = (BindWidget))
+	UABHpBarWidget* HpBar;
 };

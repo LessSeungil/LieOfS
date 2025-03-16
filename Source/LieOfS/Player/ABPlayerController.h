@@ -34,14 +34,6 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
-// HUD Section
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
-	TSubclassOf<class UABHUDWidget> ABHUDWidgetClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HUD)
-	TObjectPtr<class UABHUDWidget> ABHUDWidget;
 
 // Save Game Section
 protected:

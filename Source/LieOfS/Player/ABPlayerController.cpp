@@ -10,11 +10,6 @@ DEFINE_LOG_CATEGORY(LogABPlayerController);
 
 AABPlayerController::AABPlayerController()
 {
-	static ConstructorHelpers::FClassFinder<UABHUDWidget> ABHUDWidgetRef(TEXT("/Game/UI/WBP_ABHUD.WBP_ABHUD_C"));
-	if (ABHUDWidgetRef.Class)
-	{
-		ABHUDWidgetClass = ABHUDWidgetRef.Class;
-	}
 }
 
 void AABPlayerController::GameScoreChanged(int32 NewScore)

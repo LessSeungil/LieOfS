@@ -21,8 +21,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Attribute/ABCharacterAttributeSet.h"
 #include "GA/ABGA_Damaged.h"
-#include "Player/ABPlayerState.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Blueprint/UserWidget.h"
 
 DEFINE_LOG_CATEGORY(MyLogCategory);
 
@@ -115,6 +115,7 @@ AABCharacterPlayer::AABCharacterPlayer()
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 
 	AttributeSet = CreateDefaultSubobject<UABCharacterAttributeSet>(TEXT("HealthSet"));
+	
 }
 
 void AABCharacterPlayer::BeginPlay()
@@ -283,18 +284,6 @@ UAbilitySystemComponent* AABCharacterPlayer::GetAbilitySystemComponent() const
 
 void AABCharacterPlayer::PossessedBy(AController* NewController)
 {
-	// AABPlayerState* playerState = GetPlayerState<AABPlayerState>();
-	// if(playerState != nullptr)
-	// {
-	// 	ASC = playerState->GetAbilitySystemComponent();
-	// 	ASC->InitAbilityActorInfo(playerState, this);
-	//
-	// 	for(const auto& StartAbility : StartAbilities)
-	// 	{
-	// 		FGameplayAbilitySpec StartSpec(StartAbility);
-	// 		ASC->GiveAbility(StartSpec);
-	// 	}
-	// }
 	
 	ASC->InitAbilityActorInfo(this, this);
 	 for(const auto& StartAbility : StartAbilities)
@@ -302,16 +291,10 @@ void AABCharacterPlayer::PossessedBy(AController* NewController)
 	 	FGameplayAbilitySpec StartSpec(StartAbility);
 	 	ASC->GiveAbility(StartSpec);
 	 }
+
+	ASC->InitStats(UABCharacterAttributeSet::StaticClass(),nullptr);
 	
-	// AttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
-	//
-	// FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
-	// EffectContextHandle.AddSourceObject(this);
-	/*FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, Level, EffectContextHandle);
-	if (EffectSpecHandle.IsValid())
-	{
-		ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
-	}*/
+	SettingHUDWidget();
 }
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
@@ -584,14 +567,16 @@ void AABCharacterPlayer::UnLeadWeapon()
 {
 }
 
-void AABCharacterPlayer::SetupHUDWidget(UABHUDWidget* InHUDWidget)
+void AABCharacterPlayer::SettingHUDWidget()
 {
-	if (InHUDWidget)
+	ABHUDWidget =  CreateWidget<UABHUDWidget>(GetWorld(), WidgetClass);
+	ABHUDWidget->AddToViewport();
+	if (ABHUDWidget)
 	{
-		InHUDWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
-		InHUDWidget->UpdateHpBar(this);
+		ABHUDWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
+		ABHUDWidget->UpdateHpBar(this);
 
-		Stat->OnStatChanged.AddUObject(InHUDWidget, &UABHUDWidget::UpdateStat);
+		Stat->OnStatChanged.AddUObject(ABHUDWidget, &UABHUDWidget::UpdateStat);
 	}
 	
 }

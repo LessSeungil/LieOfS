@@ -16,7 +16,7 @@ DECLARE_LOG_CATEGORY_EXTERN(MyLogCategory, Log, All);
  * 
  */
 UCLASS()
-class LIEOFS_API AABCharacterPlayer : public AABCharacterBase, public IABCharacterHUDInterface, public IAbilitySystemInterface
+class LIEOFS_API AABCharacterPlayer : public AABCharacterBase, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -152,8 +152,14 @@ public:
 
 // UI Section
 protected:
-	virtual void SetupHUDWidget(class UABHUDWidget* InHUDWidget) override;
+	virtual void SettingHUDWidget();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	TSubclassOf<UABHUDWidget> WidgetClass;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = HUD)
+	TObjectPtr<class UABHUDWidget> ABHUDWidget;
+	
 private:
 	void ShieldEndEnableInput(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
 

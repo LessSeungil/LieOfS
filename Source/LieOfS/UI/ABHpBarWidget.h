@@ -38,11 +38,11 @@ protected:
 	virtual void OnMaxHealthChanged(const FOnAttributeChangeData& ChangeData);
 	
 protected:
-	UPROPERTY()
-	TObjectPtr<class UProgressBar> HpProgressBar;
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* HpProgressBar;
 
-	UPROPERTY()
-	TObjectPtr<class UTextBlock> HpStat;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* HpStat;
 
 	UPROPERTY()
 	float CurrentHp;
